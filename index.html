@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sklep App</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: #111;
+    color: white;
+}
+button {
+    width: 80%;
+    padding: 20px;
+    margin: 10px;
+    font-size: 20px;
+    border-radius: 15px;
+    border: none;
+}
+.plus { background: green; }
+.minus { background: red; }
+.list { background: gold; color: black; }
+
+#reader { width: 300px; margin: auto; }
+
+.card {
+    background: #222;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📦 Sklep</h1>
+
+<button class="plus" onclick="startScan('add')">➕ Naskladnit</button>
+<button class="minus" onclick="startScan('remove')">➖ Vyskladnit</button>
+<button class="list" onclick="showList()">📋 Seznam</button>
+<button onclick="exportExcel()">📤 Export Excel</button>
+
+<div id="reader"></div>
+<div id="output"></div>
+
+<script>
+
+let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+let lastScan = 0;
+
+function save() {
+    localStorage.setItem("inventory", JSON.stringify(inventory));
+}
+
+function findProduct(code) {
+    return inventory.find(p => p.barcode === code);
+}
+
+function startScan(mode) {
+    document.getElementById("reader").innerHTML = "";
+
+    const scanner = new Html5Qrcode("reader");
+
+    scanner.start(
+        { facingMode: "environment" },
+        { fps: 10 },
+        (decodedText) => {
+
+            if (Date.now() - lastScan < 2500) return;
+            lastScan = Date.now();
+
+            scanner.stop();
+
+            handleScan(decodedText, mode);
+        }
+    );
+}
+
+function handleScan(code, mode) {
+
+    let product = findProduct(code);
+
+    if (product) {
+        if (mode === "add") product.count++;
+        else product.count = Math.max(0, product.count - 1);
+
+        alert("✅ " + product.name + " | počet: " + product.count);
+    } else {
+        let name = prompt("Název produktu:");
+        if (!name) return;
+
+        let weight = prompt("Gramáž (volitelné):");
+
+        inventory.push({
+            name,
+            barcode: code,
+            count: 1,
+            weight
+        });
+
+        alert("✅ Přidáno");
+    }
+
+    save();
+}
+
+function showList() {
+    let html = "";
+
+    inventory.forEach(p => {
+        html += `
+        <div class="card">
+            <b>${p.name}</b><br>
+            Kusů: ${p.count}<br>
+            ${p.weight || ""}
+        </div>
+        `;
+    });
+
+    document.getElementById("output").innerHTML = html;
+}
+
+function exportExcel() {
+
+    let data = inventory.map(p => ({
+        Nazev: p.name,
+        Pocet: p.count,
+        Kod: p.barcode,
+        Gramaz: p.weight
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventar");
+
+    XLSX.writeFile(wb, "inventar.xlsx");
+}
+
+</script>
+
+</body>
+</html>
