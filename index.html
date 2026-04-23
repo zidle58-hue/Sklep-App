@@ -66,23 +66,33 @@ function findProduct(code) {
 function startScan(mode) {
 
     document.getElementById("output").innerHTML = "";
+    document.getElementById("reader").innerHTML = "";
 
     Quagga.init({
         inputStream: {
             type: "LiveStream",
             target: document.querySelector("#reader"),
             constraints: {
-                facingMode: "environment"
+                facingMode: "environment",
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
             }
         },
+
+        locator: {
+            patchSize: "large",   // 🔥 zásadní
+            halfSample: false     // 🔥 lepší kvalita
+        },
+
+        numOfWorkers: 2,
+        frequency: 10,
+
         decoder: {
-            readers: [
-                "ean_reader",
-                "ean_8_reader",
-                "upc_reader",
-                "upc_e_reader"
-            ]
-        }
+            readers: ["ean_reader"]
+        },
+
+        locate: true
+
     }, function(err) {
         if (err) {
             console.log(err);
@@ -91,7 +101,11 @@ function startScan(mode) {
         Quagga.start();
     });
 
+    Quagga.offDetected(); // 🔥 zabrání duplikátům
+
     Quagga.onDetected(function(result) {
+
+        if (!result.codeResult || !result.codeResult.code) return;
 
         if (Date.now() - lastScan < 2000) return;
         lastScan = Date.now();
