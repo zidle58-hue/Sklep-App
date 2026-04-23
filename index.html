@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sklep App</title>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
 
 <style>
 body {
@@ -64,32 +64,44 @@ function findProduct(code) {
 }
 
 function startScan(mode) {
+
     document.getElementById("output").innerHTML = "";
 
-    const scanner = new Html5Qrcode("reader");
+    Quagga.init({
+        inputStream: {
+            type: "LiveStream",
+            target: document.querySelector("#reader"),
+            constraints: {
+                facingMode: "environment"
+            }
+        },
+        decoder: {
+            readers: [
+                "ean_reader",
+                "ean_8_reader",
+                "upc_reader",
+                "upc_e_reader"
+            ]
+        }
+    }, function(err) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        Quagga.start();
+    });
 
-    scanner.start(
-    { facingMode: "environment" },
-    {
-        fps: 15,
-        qrbox: { width: 250, height: 150 },
-        aspectRatio: 1.777,
-        disableFlip: false
-    },
-    (decodedText) => {
+    Quagga.onDetected(function(result) {
 
         if (Date.now() - lastScan < 2000) return;
         lastScan = Date.now();
 
-        scanner.stop().then(() => {
-            handleScan(decodedText, mode);
-        }).catch(() => {});
-    },
-    (error) => {
-        // ignoruj chyby (normální při skenování)
-    }
-);
-    );
+        let code = result.codeResult.code;
+
+        Quagga.stop();
+
+        handleScan(code, mode);
+    });
 }
 
 function handleScan(code, mode) {
