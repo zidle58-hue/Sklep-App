@@ -64,7 +64,7 @@ function findProduct(code) {
 }
 
 function startScan(mode) {
-    document.getElementById("reader").innerHTML = "";
+    document.getElementById("output").innerHTML = "";
 
     const scanner = new Html5Qrcode("reader");
 
@@ -76,9 +76,9 @@ function startScan(mode) {
             if (Date.now() - lastScan < 2500) return;
             lastScan = Date.now();
 
-            scanner.stop();
-
-            handleScan(decodedText, mode);
+            scanner.stop().then(() => {
+    handleScan(decodedText, mode);
+}).catch(() => {});
         }
     );
 }
@@ -112,7 +112,14 @@ function handleScan(code, mode) {
 }
 
 function showList() {
-    let html = "";
+
+    document.getElementById("reader").innerHTML = ""; // vypne kameru
+
+    let html = "<h2>📋 Seznam</h2>";
+
+    if (inventory.length === 0) {
+        html += "<p>Žádné položky</p>";
+    }
 
     inventory.forEach(p => {
         html += `
@@ -126,7 +133,6 @@ function showList() {
 
     document.getElementById("output").innerHTML = html;
 }
-
 function exportExcel() {
 
     let data = inventory.map(p => ({
