@@ -69,17 +69,26 @@ function startScan(mode) {
     const scanner = new Html5Qrcode("reader");
 
     scanner.start(
-        { facingMode: "environment" },
-        { fps: 10 },
-        (decodedText) => {
+    { facingMode: "environment" },
+    {
+        fps: 15,
+        qrbox: { width: 250, height: 150 },
+        aspectRatio: 1.777,
+        disableFlip: false
+    },
+    (decodedText) => {
 
-            if (Date.now() - lastScan < 2500) return;
-            lastScan = Date.now();
+        if (Date.now() - lastScan < 2000) return;
+        lastScan = Date.now();
 
-            scanner.stop().then(() => {
-    handleScan(decodedText, mode);
-}).catch(() => {});
-        }
+        scanner.stop().then(() => {
+            handleScan(decodedText, mode);
+        }).catch(() => {});
+    },
+    (error) => {
+        // ignoruj chyby (normální při skenování)
+    }
+);
     );
 }
 
