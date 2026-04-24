@@ -18,7 +18,7 @@ body {
 button {
     width: 80%;
     padding: 20px;
-    margin: 10px;
+    margin: 5px;
     font-size: 20px;
     border-radius: 15px;
     border: none;
@@ -48,9 +48,11 @@ button {
 <button onclick="exportExcel()">📤 Export Excel</button>
 
 <div id="reader"></div>
+<button onclick="toggleTorch()">💡 Světlo</button>
 <div id="output"></div>
 
 <script>
+let torchOn = false;
 let editMode = false;
 let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
 let lastScan = 0;
@@ -61,6 +63,17 @@ function toggleEdit() {
 
 function save() {
     localStorage.setItem("inventory", JSON.stringify(inventory));
+}
+
+function toggleTorch() {
+    const track = Quagga.CameraAccess.getActiveTrack();
+    if (!track) return;
+
+    torchOn = !torchOn;
+
+    track.applyConstraints({
+        advanced: [{ torch: torchOn }]
+    });
 }
 
 function findProduct(code) {
@@ -269,6 +282,7 @@ window.deleteItem = deleteItem;
 window.toggleEdit = toggleEdit;
 window.addOne = addOne;
 window.removeOne = removeOne;
+window.toggleTorch = toggleTorch;
 
 </script>
 
