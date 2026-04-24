@@ -67,6 +67,55 @@ function findProduct(code) {
     return inventory.find(p => p.barcode === code);
 }
 
+function addManual() {
+
+    let name = prompt("Název produktu:");
+    if (!name) return;
+
+    let count = parseInt(prompt("Počet kusů:", "1")) || 1;
+    let weight = prompt("Gramáž (volitelné):");
+
+    inventory.push({
+        name,
+        barcode: "manual_" + Date.now(),
+        count,
+        weight
+    });
+
+    save();
+    showList();
+}
+
+function editItem(index) {
+
+    let p = inventory[index];
+
+    let newName = prompt("Název:", p.name);
+    if (!newName) return;
+
+    let newCount = parseInt(prompt("Počet:", p.count));
+    if (isNaN(newCount)) return;
+
+    let newWeight = prompt("Gramáž:", p.weight || "");
+
+    p.name = newName;
+    p.count = newCount;
+    p.weight = newWeight;
+
+    save();
+    showList();
+}
+
+function deleteItem(index) {
+
+    if (!confirm("Opravdu smazat?")) return;
+
+    inventory.splice(index, 1);
+
+    save();
+    showList();
+}
+
 function startScan(mode) {
 
     document.getElementById("output").innerHTML = "";
