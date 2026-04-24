@@ -51,9 +51,13 @@ button {
 <div id="output"></div>
 
 <script>
-
+let editMode = false;
 let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
 let lastScan = 0;
+function toggleEdit() {
+    editMode = !editMode;
+    showList();
+}
 
 function save() {
     localStorage.setItem("inventory", JSON.stringify(inventory));
@@ -148,27 +152,39 @@ function handleScan(code, mode) {
 
 function showList() {
 
-    document.getElementById("reader").innerHTML = ""; // vypne kameru
+    document.getElementById("reader").innerHTML = "";
 
-    let html = "<h2>📋 Seznam</h2>";
-
+    let html = `
+        <h2>📋 Seznam</h2>
+        <button onclick="toggleEdit()">
+            ${editMode ? "✅ Hotovo" : "✏️ Edit"}
+        </button>
+        <button onclick="addManual()">➕ Přidat ručně</button>
+    `;
     if (inventory.length === 0) {
         html += "<p>Žádné položky</p>";
     }
 
-    inventory.forEach(p => {
+    inventory.forEach((p, index) => {
         html += `
         <div class="card">
             <b>${p.name}</b><br>
             Kusů: ${p.count}<br>
-            ${p.weight || ""}
-        </div>
+            ${p.weight || ""}<br>
         `;
+
+        if (editMode) {
+            html += `
+                <button onclick="editItem(${index})">✏️ Upravit</button>
+                <button onclick="deleteItem(${index})">❌ Smazat</button>
+            `;
+        }
+
+        html += `</div>`;
     });
 
     document.getElementById("output").innerHTML = html;
-}
-function exportExcel() {
+}function exportExcel() {
 
     let data = inventory.map(p => ({
         Nazev: p.name,
