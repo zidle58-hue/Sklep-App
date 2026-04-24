@@ -218,7 +218,9 @@ function showList() {
         html += `
         <div class="card">
             <b>${p.name}</b><br>
-            Kusů: ${p.count}<br>
+           Kusů: ${p.count}<br>
+<button onclick="addOne(${index})">➕</button>
+<button onclick="removeOne(${index})">➖</button>
             ${p.weight || ""}<br>
         `;
 
@@ -249,10 +251,24 @@ function showList() {
     XLSX.writeFile(wb, "inventar.xlsx");
 }
 
+function addOne(index) {
+    inventory[index].count++;
+    save();
+    showList();
+}
+
+function removeOne(index) {
+    inventory[index].count = Math.max(0, inventory[index].count - 1);
+    save();
+    showList();
+}
+
 window.addManual = addManual;
 window.editItem = editItem;
 window.deleteItem = deleteItem;
 window.toggleEdit = toggleEdit;
+window.addOne = addOne;
+window.removeOne = removeOne;
 
 </script>
 
