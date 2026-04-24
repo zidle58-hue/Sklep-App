@@ -37,23 +37,27 @@ button {
 }
 
 #scanner-container {
-    display: none;
     position: relative;
     width: 100%;
     max-width: 400px;
     margin: 20px auto;
 }
 
+#reader {
+    width: 100%;
+}
+
 #torch-btn {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    padding: 12px;
-    font-size: 18px;
+    position: fixed; /* 🔥 klíč */
+    bottom: 120px;
+    right: 20px;
+    padding: 15px;
+    font-size: 20px;
     border-radius: 50%;
     background: yellow;
     color: black;
-    opacity: 0.9;
+    z-index: 999;
+    display: none; /* 👈 defaultně skryté */
 }
 </style>
 </head>
@@ -155,6 +159,7 @@ function deleteItem(index) {
 function startScan(mode) {
 
     document.getElementById("scanner-container").style.display = "block";
+    document.getElementById("torch-btn").style.display = "block";
     document.getElementById("output").innerHTML = "";
     document.getElementById("reader").innerHTML = "";
 
@@ -203,6 +208,8 @@ function startScan(mode) {
         let code = result.codeResult.code;
 
         Quagga.stop();
+
+        document.getElementById("torch-btn").style.display = "none";
 
         document.getElementById("scanner-container").style.display = "none";
 
