@@ -36,6 +36,35 @@ button {
     border-radius: 10px;
 }
 
+.main-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+}
+
+.btn {
+    width: 80px;
+    height: 80px;
+    font-size: 30px;
+    border-radius: 20px;
+    border: none;
+}
+
+.green { background: #2ecc71; }
+.red { background: #e74c3c; }
+.yellow { background: #f1c40f; color: black; }
+
+.export-btn {
+    width: 90%;
+    margin: 10px auto;
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+}
+
 #scanner-container {
     position: relative;
     width: 100%;
@@ -66,10 +95,13 @@ button {
 
 <h1>📦 Sklep</h1>
 
-<button class="plus" onclick="startScan('add')">➕ Naskladnit</button>
-<button class="minus" onclick="startScan('remove')">➖ Vyskladnit</button>
-<button class="list" onclick="showList()">📋 Seznam</button>
-<button onclick="exportExcel()">📤 Export Excel</button>
+<div class="main-buttons">
+    <button class="btn green" onclick="startScan('add')">➕</button>
+    <button class="btn red" onclick="startScan('remove')">➖</button>
+    <button class="btn yellow" onclick="showList()">📋</button>
+</div>
+
+<button class="export-btn" onclick="exportExcel()">📤 Export</button>
 
 <div id="scanner-container">
     <div id="reader"></div>
